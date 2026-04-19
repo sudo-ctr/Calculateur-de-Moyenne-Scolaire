@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur Moderne de Moyennes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@300;400;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="ambient ambient--one"></div>
+  <div class="ambient ambient--two"></div>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero__copy">
+        <p class="eyebrow">Tableau de Bord Scolaire</p>
+        <h1>Un calculateur de moyennes rapide, clair et moderne.</h1>
+        <p class="hero__text">
+          Choisissez un niveau, saisissez les notes et obtenez instantanement
+          la moyenne générale, le graphique et un bulletin PDF telechargeable.
+        </p>
+      </div>
+      <div class="hero__badge">
+        <span>Interface Moderne</span>
+        <span>Graphique</span>
+        <span>Export PDF</span>
+        <span>Sauvegarde Auto</span>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel panel--form">
+        <div class="panel__head">
+          <h2>Informations de l'élève</h2>
+          <p>Remplissez les champs ci-dessous pour generer le rapport.</p>
+        </div>
+
+        <form id="grade-form" class="grade-form">
+          <div class="form-grid">
+            <label class="field">
+              <span>Nom de l'élève</span>
+              <input
+                id="student-name"
+                name="studentName"
+                type="text"
+                placeholder="Optionnel"
+                autocomplete="name"
+              />
+            </label>
+
+            <label class="field">
+              <span>Niveau scolaire</span>
+              <select id="level-select" name="level" required>
+                <option value="">Choisir un niveau</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="regional-card is-hidden" id="after-bac-card">
+            <div class="regional-card__head">
+              <h3>Après BAC</h3>
+              <p>Saisissez les notes du national, choisissez la filiere, puis ajoutez la note regionale pour calculer la note générale du bac et voir les ecoles.</p>
+            </div>
+            <div class="form-grid">
+              <label class="field">
+                <span>Filiere BAC</span>
+                <select id="bac-track-select" name="bacTrack">
+                  <option value="">Choisir une filiere</option>
+                  <option value="SM">Sciences Math</option>
+                  <option value="PC">Sciences Physiques</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Note du regional / 20</span>
+                <input
+                  id="regional-grade"
+                  name="regionalGrade"
+                  type="number"
+                  min="0"
+                  max="20"
+                  step="0.01"
+                  placeholder="Saisir la note regionale"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="subjects-card">
+            <div class="subjects-card__head">
+              <div>
+                <h3>Matieres et notes</h3>
+                <p>Chaque matiere utilise le coefficient du niveau selectionne.</p>
+              </div>
+              <div id="coefficient-pill" class="coefficient-pill">Aucun niveau selectionne</div>
+            </div>
+
+            <div id="subjects-container" class="subjects-grid">
+              <div class="empty-state">
+                <p>Choisissez un niveau pour afficher la liste des matieres.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button type="submit" class="btn btn--primary">Calculer le resultat</button>
+            <button type="button" id="download-pdf" class="btn btn--secondary">Télécharger le PDF</button>
+            <button type="button" id="reset-btn" class="btn btn--ghost">Reinitialiser</button>
+          </div>
+        </form>
+
+        <div id="message-box" class="message" aria-live="polite"></div>
+
+        <div class="chart-card chart-card--inline">
+          <canvas id="grades-chart" aria-label="Graphique des notes par matiere"></canvas>
+        </div>
+      </section>
+
+      <section class="panel panel--results">
+        <div class="panel__head">
+          <h2>Resultats</h2>
+          <p>La moyenne générale et la repartition des notes se mettent a jour Après le calcul.</p>
+        </div>
+
+        <div class="insight-strip">
+          <div class="insight-pill">
+            <span class="insight-pill__label">Mode</span>
+            <strong>Moyenne générale</strong>
+          </div>
+          <div class="insight-pill">
+            <span class="insight-pill__label">Export</span>
+            <strong>Pret pour PDF</strong>
+          </div>
+        </div>
+
+        <div class="result-cards">
+          <article class="result-card">
+            <span class="result-card__label">Niveau choisi</span>
+            <strong id="result-level">-</strong>
+          </article>
+          <article class="result-card result-card--accent">
+            <span class="result-card__label">Moyenne générale</span>
+            <strong id="average-output">0.00 / 20</strong>
+          </article>
+          <article class="result-card">
+            <span class="result-card__label">Nombre de matieres</span>
+            <strong id="subject-count">0</strong>
+          </article>
+          <article class="result-card">
+            <span class="result-card__label">Note générale du bac</span>
+            <strong id="bac-average-output">-</strong>
+          </article>
+        </div>
+
+        <div class="summary-card">
+          <h3>Resultat final</h3>
+          <p id="final-result-text">
+            Choisissez un niveau et saisissez les notes pour voir le resultat final.
+          </p>
+        </div>
+
+        <div class="summary-card advice-card">
+          <h3>Conseils par matiere</h3>
+          <div id="advice-list" class="advice-list">
+            <div class="empty-state">
+              <p>Calculez le resultat pour obtenir des conseils personnalises pour chaque matiere.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-card schools-card">
+          <h3>Ecoles Après le bac</h3>
+          <div id="schools-list" class="schools-list">
+            <div class="empty-state">
+              <p>Cette section s'affiche pour les niveaux 2BAC afin d'estimer les chances d'acces aux ecoles.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
